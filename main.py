@@ -20,6 +20,9 @@ class Dishes(Resource):
     def get(self):
         return col.get_dishes(), 200
 
+    def delete(self):
+        return { }, 405
+
 
 
 api.add_resource(Dishes, '/dishes')

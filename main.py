@@ -3,7 +3,7 @@ from flask_restful import Resource, Api
 
 from data import DataCollection
 from serializer import ResponseSerializer
-from validators import MealValidator
+from validators.meal_validator import MealValidator
 from services import CalculateNutrition
 
 app = Flask(__name__)  # initialize Flask

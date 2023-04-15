@@ -35,19 +35,5 @@ class DataCollection:
             if data[item_key][target_key] == target_value:
                 return data[item_key]
             
-        return -1   
-    
-    # Checks that the parameters of the POST requests are correct
-    # 'required_params' should be "name_of_key": type_of_value" pairs. E.g. {'name': str, 'id': int}
-    def validate_params(self, json, required_params):
-        # Check if json has all the neccesary keys
-        if set(required_params.keys()) != set(json.keys()):
-            return False
-        
-        # Check if values have the correct type
-        for key in json:
-            if type(json[key]) != required_params[key]:
-                return False
-        
-        return True
+        return -1
 

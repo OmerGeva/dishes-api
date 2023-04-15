@@ -60,7 +60,7 @@ class MealsList(Resource):
     global col
     
     def get(self):
-        return make_response(jsonify(col.get_meals()), 201)
+        return make_response(jsonify(col.get_meals()), 200)
     
     def post(self):
         # Only accept app/json content type

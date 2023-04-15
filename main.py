@@ -34,7 +34,7 @@ class MealsList(Resource):
         
         req_json = request.get_json()
         
-        validator = MealValidator(req_json).call()
+        validator = MealValidator(req_json, 'post').call()
         if not validator.valid:
             return -1, 422
         

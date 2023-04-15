@@ -17,14 +17,16 @@ class DataCollection:
                        3: { 'id': 3, 'name': 'lasagna', 'cal': 1, 'sodium': 1, 'sugar': 1}}
     
     def get_dishes(self):
-        return self.dishes
+        return jsonify(self.dishes)
     
     def get_meals(self):
-        return self.meals
+        return jsonify(self.meals)
     
     def add_meal(self, meal):
-        self.meals[meal['id']] = meal
-    
+        id = meal['id']
+        self.meals[id] = meal
+        return id
+        
     # Generate ID for new datd items
     def get_id(self, type):
         if type == 'meal':
@@ -34,8 +36,6 @@ class DataCollection:
             self.dish_id_counter += 1
             return self.dish_id_counter
     
-    # Searches for a specific data item by ID
-    
     # Searches for a specific data item in data. returns -1 if item doesn't exists
     def find_data_item(self, data, target_key, target_value):
         for item_key in data:
@@ -43,6 +43,21 @@ class DataCollection:
                 return data[item_key]
             
         return -1
+    
+    # Checks that the parameters of the POST requests are correct
+    # 'required_params' should be "name_of_key": type_of_value" pairs. E.g. {'name': str, 'id': int}
+    def validate_params(self, json, required_params):
+        
+        # Check if json has all the neccesary keys
+        if set(required_params.keys()) != set(json.keys()):
+            return False
+        
+        # Check if values have the correct type
+        for key in json:
+            if type(json[key]) != required_params[key]:
+                return False
+        
+        return True
 
 col = DataCollection() 
 
@@ -50,7 +65,7 @@ class Dishes(Resource):
     global col
 
     def get(self):
-        return make_response(jsonify(col.get_dishes()), 200)
+        return make_response(col.get_dishes(), 200)
 
     def delete(self):
         return make_response({ }, 405)
@@ -60,7 +75,7 @@ class MealsList(Resource):
     global col
     
     def get(self):
-        return make_response(jsonify(col.get_meals()), 200)
+        return make_response(col.get_meals(), 200)
     
     def post(self):
         # Only accept app/json content type
@@ -70,7 +85,8 @@ class MealsList(Resource):
         req_json = request.get_json()
         
         # Check if params are specified correctly
-        if not self.validate_params(req_json):
+        required_params = {'name': str, 'appetizer': int, 'main': int, 'dessert': int}
+        if not col.validate_params(req_json, required_params):
             return -1, 422
         
         # Check if a meal with that name already exists
@@ -83,8 +99,8 @@ class MealsList(Resource):
             
         # Add meal into database
         req_json['id'] = col.get_id('meal')
-        col.add_meal(req_json)
-        return req_json['id'], 201
+        id = col.add_meal(req_json)
+        return id, 201
     
     ####################
     # Helper Functions #
@@ -103,6 +119,7 @@ class MealsList(Resource):
         
         return True
     
+    # Replace in the future with call to NinjaAPI
     def calculate_nutrition(self, json):
         dish_ids = [json['appetizer'], json['main'], json['dessert']]
         json['cal'] = json['sodium'] = json['sugar'] = 0

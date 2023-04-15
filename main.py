@@ -6,6 +6,7 @@ api = Api(app)  # create API
 
 
 class DataCollection:
+
     def __init__(self):
         self.meal_id_counter = 0
         self.dish_id_counter = 0

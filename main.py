@@ -76,22 +76,22 @@ class MealsList(Resource):
     def post(self):
         # Only accept app/json content type
         if request.content_type != 'application/json':
-            return 0, 415
+            return ResponseSerializer(0, 415).serialize()
         
         req_json = request.get_json()
         
         validator = MealValidator(req_json, 'post').call()
         if not validator.valid:
-            return -1, 422
+            return ResponseSerializer(-1, 422).serialize()
         
         # Check if a meal with that name already exists
         if col.find_data_item(col.meals, 'name', req_json['name']) != None:
-            return -2, 422
+            return ResponseSerializer(-2, 422).serialize()
         
         # Calculate the total nutrition of the dishes, returns error if a dish doesn't exist
         with_nutrition = CalculateNutrition(col, req_json).call()
         if len(with_nutrition) == 0:
-            return -6, 422
+            return ResponseSerializer(-6, 422).serialize()
             
         # Add meal into database
         with_nutrition['id'] = col.get_id('meal')
@@ -106,7 +106,7 @@ class MealByID(Resource):
         meal = col.meals.get(ID)
             
         if not meal:
-            return -5, 400
+            return ResponseSerializer(-5, 400).serialize()
 
         return ResponseSerializer(meal, 200).serialize()
     
@@ -114,22 +114,22 @@ class MealByID(Resource):
         meal = col.meals.get(ID)
             
         if not meal:
-            return -5, 400
+            return ResponseSerializer(-5, 400).serialize()
         
         col.delete_meal(self, ID)
-        return ID, 200
+        return ResponseSerializer(ID, 200).serialize()
     
     def put(self, ID):
         # Only accept app/json content type
         if request.content_type != 'application/json':
-            return 0, 415
+            return ResponseSerializer(0, 415).serialize()
         
         req_json = request.get_json()
         
         # Check if params are specified correctly
         validator = MealValidator(req_json, 'put').call()
         if not validator:
-            return -1, 422
+            return ResponseSerializer(-1, 422).serialize()
         
         # Check whether we need to modify or create a new record
         meal = col.meals.get(ID)
@@ -137,7 +137,7 @@ class MealByID(Resource):
         
         # If we are creating a new record, we first check if a meal with that name already exists
         if not modify_existing_record and col.find_data_item(col.meals, 'name', req_json['name']) != None:
-            return -2, 422
+            return ResponseSerializer(-2, 422).serialize()
         
         # Add meal into database
         if modify_existing_record:
@@ -189,7 +189,7 @@ class MealByID(Resource):
         
         # If we are creating a new record, we first check if a meal with that name already exists
         if not modify_existing_record and col.find_data_item(col.meals, 'name', req_json['name']) != None:
-            return -2, 422
+            return ResponseSerializer(-2, 422).serialize()
         
         # Add meal into database
         if modify_existing_record:
@@ -199,7 +199,7 @@ class MealByID(Resource):
         
         ID = col.add_meal(req_json)
         
-        return ID, 201
+        return ResponseSerializer(ID, 201).serialize()
         
     
 class MealByName(Resource):
@@ -210,30 +210,7 @@ class MealByName(Resource):
         
         # Return an error if meal doesn't exit
         if not meal:
-            return -5, 400
-        
-        return make_response(jsonify(meal), 200)
-    
-    def delete(self, name):
-        meal = col.find_data_item(col.get_meals(), 'name', name)
-        
-        # Return an error if meal doesn't exit
-        if not meal:
-            return -5, 400
-        
-        meal_id = meal['id']
-        col.delete_meal(meal_id)
-        return meal_id, 200
-    
-class MealByName(Resource):
-    global col
-    
-    def get(self, name):
-        meal = col.find_data_item(col.get_meals(), 'name', name)
-        
-        # Return an error if meal doesn't exit
-        if not meal:
-            return -5, 400
+            return ResponseSerializer(-5, 400).serialize()
         
         return ResponseSerializer(meal, 200).serialize()
     
@@ -242,11 +219,34 @@ class MealByName(Resource):
         
         # Return an error if meal doesn't exit
         if not meal:
-            return -5, 400
+            return ResponseSerializer(-5, 400).serialize()
         
         meal_id = meal['id']
         col.delete_meal(meal_id)
-        return meal_id, 200
+        return ResponseSerializer(meal_id, 200).serialize()
+    
+class MealByName(Resource):
+    global col
+    
+    def get(self, name):
+        meal = col.find_data_item(col.get_meals(), 'name', name)
+        
+        # Return an error if meal doesn't exit
+        if not meal:
+            return ResponseSerializer(-5, 400).serialize()
+        
+        return ResponseSerializer(meal, 200).serialize()
+    
+    def delete(self, name):
+        meal = col.find_data_item(col.get_meals(), 'name', name)
+        
+        # Return an error if meal doesn't exit
+        if not meal:
+            return ResponseSerializer(-5, 400).serialize()
+        
+        meal_id = meal['id']
+        col.delete_meal(meal_id)
+        return ResponseSerializer(meal_id, 200).serialize()
 
 
 api.add_resource(Dishes, '/dishes')

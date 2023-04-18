@@ -18,12 +18,15 @@ class DataCollection:
         self.meals = {}
         # TODO: CHANGE TO DYNAMIC
         self.dishes = {1: { 'id': 1, 'name': 'lasagna', 'cal': 1, 'sodium': 1, 'sugar': 1},
-                       2: { 'id': 2, 'name': 'lasagna', 'cal': 1, 'sodium': 1, 'sugar': 1},
-                       3: { 'id': 3, 'name': 'lasagna', 'cal': 1, 'sodium': 1, 'sugar': 1}}
+                       2: { 'id': 2, 'name': 'pizza', 'cal': 1, 'sodium': 1, 'sugar': 1},
+                       3: { 'id': 3, 'name': 'hamburger', 'cal': 1, 'sodium': 1, 'sugar': 1}}
     
     def get_dishes(self):
         return self.dishes
-    
+
+    def delete_dish(self, id):
+        del self.dishes[id]
+
     def get_meals(self):
         return self.meals
     
@@ -65,6 +68,47 @@ class Dishes(Resource):
 
     def delete(self):
         return ResponseSerializer({ }, 405).serialize()
+
+class DishByID(Resource):
+    global col
+    def get(self, ID):
+        dish = col.dishes.get(ID)
+
+        if not dish:
+            return ResponseSerializer(-5, 404).serialize()
+
+        return ResponseSerializer(dish, 200).serialize()
+    def delete(self, ID):
+        dish = col.dishes.get(ID)
+
+        if not dish:
+            return ResponseSerializer(-5, 404).serialize()
+
+        col.delete_dish(ID)
+
+        return ResponseSerializer(dish['id'], 200).serialize()
+
+
+class DishByName(Resource):
+    global col
+
+    def get(self, name):
+        dish = col.find_data_item(col.get_dishes(), 'name', name)
+
+        if not dish:
+            return ResponseSerializer(-5, 404).serialize()
+
+        return ResponseSerializer(dish, 200).serialize()
+
+    def delete(self, name):
+        dish = col.find_data_item(col.get_dishes(), 'name', name)
+
+        if not dish:
+            return ResponseSerializer(-5, 404).serialize()
+
+        col.delete_dish(dish['id'])
+
+        return ResponseSerializer(dish['id'], 200).serialize()
 
 # Meal classes
 class MealsList(Resource):
@@ -249,7 +293,9 @@ class MealByName(Resource):
         return ResponseSerializer(meal_id, 200).serialize()
 
 
+api.add_resource(DishByName, '/dishes/<string:name>')
 api.add_resource(Dishes, '/dishes')
+api.add_resource(DishByID, '/dishes/<int:ID>')
 api.add_resource(MealsList, '/meals')
 api.add_resource(MealByID, '/meals/<int:ID>')
 api.add_resource(MealByName, '/meals/<string:name>')

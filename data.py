@@ -6,15 +6,21 @@ class DataCollection:
         self.meals = {}
         # TODO: CHANGE TO DYNAMIC
         self.dishes = {1: { 'id': 1, 'name': 'lasagna', 'cal': 1, 'sodium': 1, 'sugar': 1},
-                       2: { 'id': 2, 'name': 'lasagna', 'cal': 1, 'sodium': 1, 'sugar': 1},
-                       3: { 'id': 3, 'name': 'lasagna', 'cal': 1, 'sodium': 1, 'sugar': 1}}
+                       2: { 'id': 2, 'name': 'pizza', 'cal': 1, 'sodium': 1, 'sugar': 1},
+                       3: { 'id': 3, 'name': 'hamburger', 'cal': 1, 'sodium': 1, 'sugar': 1}}
     
     def get_dishes(self):
         return self.dishes
-    
+
+    def delete_dish(self, id):
+        del self.dishes[id]
+
     def get_meals(self):
         return self.meals
-    
+
+    def delete_meal(self, id):
+        del self.meals[id]
+
     def add_meal(self, meal):
         id = meal['id']
         self.meals[id] = meal

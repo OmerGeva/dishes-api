@@ -21,6 +21,47 @@ class Dishes(Resource):
     def delete(self):
         return ResponseSerializer({ }, 405).serialize()
 
+class DishByID(Resource):
+    global col
+    def get(self, ID):
+        dish = col.dishes.get(ID)
+
+        if not dish:
+            return ResponseSerializer(-5, 404).serialize()
+
+        return ResponseSerializer(dish, 200).serialize()
+    def delete(self, ID):
+        dish = col.dishes.get(ID)
+
+        if not dish:
+            return ResponseSerializer(-5, 404).serialize()
+
+        col.delete_dish(ID)
+
+        return ResponseSerializer(dish['id'], 200).serialize()
+
+
+class DishByName(Resource):
+    global col
+
+    def get(self, name):
+        dish = col.find_data_item(col.get_dishes(), 'name', name)
+
+        if not dish:
+            return ResponseSerializer(-5, 404).serialize()
+
+        return ResponseSerializer(dish, 200).serialize()
+
+    def delete(self, name):
+        dish = col.find_data_item(col.get_dishes(), 'name', name)
+
+        if not dish:
+            return ResponseSerializer(-5, 404).serialize()
+
+        col.delete_dish(dish['id'])
+
+        return ResponseSerializer(dish['id'], 200).serialize()
+
 # Meal classes
 class MealsList(Resource):
     global col
@@ -129,7 +170,9 @@ class MealByName(Resource):
         return ResponseSerializer(meal_id, 200).serialize()
 
 
+api.add_resource(DishByName, '/dishes/<string:name>')
 api.add_resource(Dishes, '/dishes')
+api.add_resource(DishByID, '/dishes/<int:ID>')
 api.add_resource(MealsList, '/meals')
 api.add_resource(MealByID, '/meals/<int:ID>')
 api.add_resource(MealByName, '/meals/<string:name>')

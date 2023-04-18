@@ -7,14 +7,5 @@ class MealValidator(BaseValidator):
             'appetizer': int, 
             'main': int, 
             'dessert': int
-        },
-        'put': {
-            'name': str, 
-            'appetizer': int, 
-            'main': int, 
-            'dessert': int,
-            'cal': float,
-            'sodium': float,
-            'sugar': float
-        } 
+        }
     }

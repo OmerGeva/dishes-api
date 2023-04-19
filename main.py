@@ -5,9 +5,8 @@ from data import DataCollection
 from serializer import ResponseSerializer
 from validators.meal_validator import MealValidator
 from validators.dish_validator import DishValidator
-from services import CalculateNutrition
-
-import requests
+from services.calculate_meal_nutrition import CalculateMealNutrition
+from services.get_nutritional_value import GetNutritionalValue
 
 app = Flask(__name__)  # initialize Flask
 api = Api(app)  # create API
@@ -39,31 +38,8 @@ class Dishes(Resource):
         if col.find_data_item(col.dishes, 'name', req_json['name']) != -1:
             return ResponseSerializer(-2, 422).serialize()
 
-        # Calculate nutrition from API-ninjas
-        query = req_json['name']
-        api_url = 'https://api.api-ninjas.com/v1/nutrition?query={}'.format(query)
-
-        response = requests.get(api_url, headers={'X-Api-Key': 'xGz7WUhOfPLpoGoeKxEO+w==5cBTcX74GCXh7AHX'})
-        if response.status_code == requests.codes.ok:
-            #api-ninjas could not recognize the dish name
-            if not len(response.json()):
-                return ResponseSerializer(-3, 422).serialize()
-            
-            #calculate the required nutrition facts
-            dishID = col.get_id('dish')
-            dishName = req_json['name']
-            dishCal, dishSize, dishSodium, dishSugar = 0, 0, 0, 0
-            for item in response.json():
-                dishCal += item['calories']
-                dishSize += item['serving_size_g']
-                dishSodium += item['sodium_mg']
-                dishSugar += item['sugar_g']
-            #define and add dish to col
-            dish = { 'id': dishID, 'name': dishName, 'cal': dishCal, 'sodium': dishSodium, 'sugar': dishSugar}
-            return ResponseSerializer(col.add_dish(dish), 201).serialize()
-        #api-ninjas was not reachable
-        else:
-            return ResponseSerializer(-4, 504).serialize()
+        dish_nutrition = GetNutritionalValue(col, req_json)
+        return dish_nutrition.call()
 
 class DishByID(Resource):
     global col
@@ -129,7 +105,7 @@ class MealsList(Resource):
             return ResponseSerializer(-2, 422).serialize()
         
         # Calculate the total nutrition of the dishes, returns error if a dish doesn't exist
-        with_nutrition = CalculateNutrition(col, req_json).call()
+        with_nutrition = CalculateMealNutrition(col, req_json).call()
         if len(with_nutrition) == 0:
             return ResponseSerializer(-6, 422).serialize()
             

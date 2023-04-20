@@ -4,31 +4,35 @@ class DataCollection:
         self.dish_id_counter = 0
         
         self.meals = {}
-        # TODO: CHANGE TO DYNAMIC
-        self.dishes = {1: { 'id': 1, 'name': 'lasagna', 'cal': 1, 'sodium': 1, 'sugar': 1},
-                       2: { 'id': 2, 'name': 'lasagna', 'cal': 1, 'sodium': 1, 'sugar': 1},
-                       3: { 'id': 3, 'name': 'lasagna', 'cal': 1, 'sodium': 1, 'sugar': 1}}
+        self.dishes = {100: { 'id': 100, 'name': 'lasagna', 'cal': 1, 'sodium': 1, 'sugar': 1},
+                       200: { 'id': 200, 'name': 'pizza', 'cal': 1, 'sodium': 1, 'sugar': 1},
+                       300: { 'id': 3300, 'name': 'hamburger', 'cal': 1, 'sodium': 1, 'sugar': 1}}
     
     def get_dishes(self):
         return self.dishes
-    
+
     def get_meals(self):
         return self.meals
     
+    def delete_dish(self, id):
+        del self.dishes[id]
+
+    def add_dish(self, dish):
+        id = self.__generate_id('dish')
+        dish['id'] = id
+        self.dishes[id] = dish
+        return id
+        
+
+    def delete_meal(self, id):
+        del self.meals[id]
+
     def add_meal(self, meal):
-        id = meal['id']
+        id = self.__generate_id('meal')
+        meal['id'] = id
         self.meals[id] = meal
         return id
         
-    # Generate ID for new datd items
-    def get_id(self, type):
-        if type == 'meal':
-            self.meal_id_counter += 1
-            return self.meal_id_counter
-        elif type == 'dish':
-            self.dish_id_counter += 1
-            return self.dish_id_counter
-    
     # Searches for a specific data item in data. returns -1 if item doesn't exists
     def find_data_item(self, data, target_key, target_value):
         for item_key in data:
@@ -36,4 +40,12 @@ class DataCollection:
                 return data[item_key]
             
         return -1
-
+    
+    # Generate unique ID for new data items
+    def __generate_id(self, type):
+        if type == 'meal':
+            self.meal_id_counter += 1
+            return self.meal_id_counter
+        elif type == 'dish':
+            self.dish_id_counter += 1
+            return self.dish_id_counter

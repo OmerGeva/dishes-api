@@ -1,4 +1,4 @@
-class CalculateNutrition():
+class CalculateMealNutrition():
     def __init__(self,  col, attrs):
         self.col = col
         self.attrs = attrs

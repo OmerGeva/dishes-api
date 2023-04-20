@@ -24,7 +24,6 @@ class Dishes(Resource):
         return ResponseSerializer({}, 405).serialize()
     
     def post(self):
-        print(col.get_dishes())
         # Only accept app/json content type
         if request.content_type != 'application/json':
             return ResponseSerializer(0, 415).serialize()
@@ -49,7 +48,6 @@ class Dishes(Resource):
         except NinjaEmptyException:
             return ResponseSerializer(-3, 422).serialize()
         
-        print(col.get_dishes())
         return ResponseSerializer(dish, 201).serialize()
 
 

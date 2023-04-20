@@ -7,6 +7,7 @@ from validators.meal_validator import MealValidator
 from validators.dish_validator import DishValidator
 from services.calculate_meal_nutrition import CalculateMealNutrition
 from services.get_nutritional_value import GetNutritionalValue
+from exceptions.ninja_exceptions import NinjaTimeoutException, NinjaEmptyException
 
 app = Flask(__name__)  # initialize Flask
 api = Api(app)  # create API
@@ -20,9 +21,10 @@ class Dishes(Resource):
         return ResponseSerializer(col.get_dishes(), 200).serialize()
 
     def delete(self):
-        return ResponseSerializer({ }, 405).serialize()
+        return ResponseSerializer({}, 405).serialize()
     
     def post(self):
+        print(col.get_dishes())
         # Only accept app/json content type
         if request.content_type != 'application/json':
             return ResponseSerializer(0, 415).serialize()
@@ -38,8 +40,18 @@ class Dishes(Resource):
         if col.find_data_item(col.dishes, 'name', req_json['name']) != -1:
             return ResponseSerializer(-2, 422).serialize()
 
-        dish_nutrition = GetNutritionalValue(col, req_json)
-        return dish_nutrition.call()
+        dish_nutrition = GetNutritionalValue(req_json['name']).call()
+
+        try:
+            dish = col.add_dish(dish_nutrition)
+        except NinjaTimeoutException:
+            return ResponseSerializer(-4, 504).serialize()
+        except NinjaEmptyException:
+            return ResponseSerializer(-3, 422).serialize()
+        
+        print(col.get_dishes())
+        return ResponseSerializer(dish, 201).serialize()
+
 
 class DishByID(Resource):
     global col
@@ -67,7 +79,7 @@ class DishByName(Resource):
     def get(self, name):
         dish = col.find_data_item(col.get_dishes(), 'name', name)
 
-        if not dish:
+        if dish == -1:
             return ResponseSerializer(-5, 404).serialize()
 
         return ResponseSerializer(dish, 200).serialize()
@@ -75,14 +87,13 @@ class DishByName(Resource):
     def delete(self, name):
         dish = col.find_data_item(col.get_dishes(), 'name', name)
 
-        if not dish:
+        if dish == -1:
             return ResponseSerializer(-5, 404).serialize()
 
         col.delete_dish(dish['id'])
 
         return ResponseSerializer(dish['id'], 200).serialize()
 
-# Meal classes
 class MealsList(Resource):
     global col
     
@@ -95,13 +106,13 @@ class MealsList(Resource):
             return ResponseSerializer(0, 415).serialize()
         
         req_json = request.get_json()
-        
+
         validator = MealValidator(req_json, 'post').call()
         if not validator.valid:
             return ResponseSerializer(-1, 422).serialize()
         
         # Check if a meal with that name already exists
-        if col.find_data_item(col.meals, 'name', req_json['name']) != None:
+        if col.find_data_item(col.meals, 'name', req_json['name']) != -1:
             return ResponseSerializer(-2, 422).serialize()
         
         # Calculate the total nutrition of the dishes, returns error if a dish doesn't exist
@@ -110,7 +121,6 @@ class MealsList(Resource):
             return ResponseSerializer(-6, 422).serialize()
             
         # Add meal into database
-        with_nutrition['id'] = col.get_id('meal')
         id = col.add_meal(with_nutrition)
         return ResponseSerializer(id, 201).serialize()
 
@@ -132,7 +142,7 @@ class MealByID(Resource):
         if not meal:
             return ResponseSerializer(-5, 400).serialize()
         
-        col.delete_meal(self, ID)
+        col.delete_meal(ID)
         return ResponseSerializer(ID, 200).serialize()
     
     def put(self, ID):
@@ -158,12 +168,17 @@ class MealByID(Resource):
         # Add meal into database
         if modify_existing_record:
             req_json['id'] = ID
+            res_code = 200
         else:
             req_json['id'] = col.get_id('meal')
+            res_code = 201
+        
+        # TODO: this logic is not correct if meal exists, we need to update the meal. if it doesn't exist, we need to create a new one
+        # change needed in the if statement above
         
         ID = col.add_meal(req_json)
         
-        return ResponseSerializer(ID, 201).serialize()
+        return ResponseSerializer(ID, res_code).serialize()
         
     
 class MealByName(Resource):
@@ -173,7 +188,7 @@ class MealByName(Resource):
         meal = col.find_data_item(col.get_meals(), 'name', name)
         
         # Return an error if meal doesn't exit
-        if not meal:
+        if meal == -1:
             return ResponseSerializer(-5, 400).serialize()
         
         return ResponseSerializer(meal, 200).serialize()

@@ -1,3 +1,3 @@
 # dishes-api
 
-please run the server with `flask --app main run`
+please run the server with `make run`

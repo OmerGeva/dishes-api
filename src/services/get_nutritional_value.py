@@ -1,9 +1,9 @@
 import sys
 sys.path.append("..")
 
-from tokens import API_NINJA_KEY
+from src.tokens import API_NINJA_KEY
 import requests
-from exceptions.ninja_exceptions import NinjaTimeoutException, NinjaEmptyException
+from src.exceptions.ninja_exceptions import NinjaTimeoutException, NinjaEmptyException
 
 class GetNutritionalValue():
     BASE_API_URL = "https://api.api-ninjas.com/v1/nutrition?query="

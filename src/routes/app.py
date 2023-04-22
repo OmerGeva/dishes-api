@@ -1,16 +1,16 @@
-from flask import Flask, request
-from flask_restful import Resource, Api
+import sys
+sys.path.append("..")
 
-from data import DataCollection
-from serializer import ResponseSerializer
-from validators.meal_validator import MealValidator
-from validators.dish_validator import DishValidator
-from services.calculate_meal_nutrition import CalculateMealNutrition
-from services.get_nutritional_value import GetNutritionalValue
-from exceptions.ninja_exceptions import NinjaTimeoutException, NinjaEmptyException
+from flask import request
+from flask_restful import Resource
 
-app = Flask(__name__)  # initialize Flask
-api = Api(app)  # create API
+from src.data import DataCollection
+from src.serializer import ResponseSerializer
+from src.validators.meal_validator import MealValidator
+from src.validators.dish_validator import DishValidator
+from src.services.calculate_meal_nutrition import CalculateMealNutrition
+from src.services.get_nutritional_value import GetNutritionalValue
+from src.exceptions.ninja_exceptions import NinjaTimeoutException, NinjaEmptyException
 
 col = DataCollection() 
 
@@ -201,15 +201,3 @@ class MealByName(Resource):
         meal_id = meal['id']
         col.delete_meal(meal_id)
         return ResponseSerializer(meal_id, 200).serialize()
-
-
-api.add_resource(DishByName, '/dishes/<string:name>')
-api.add_resource(Dishes, '/dishes')
-api.add_resource(DishByID, '/dishes/<int:ID>')
-api.add_resource(MealsList, '/meals')
-api.add_resource(MealByID, '/meals/<int:ID>')
-api.add_resource(MealByName, '/meals/<string:name>')
-
-if __name__ == '__main__':
-    print('running main.py')
-    app.run(host='0.0.0.0', port=8000, debug=True)

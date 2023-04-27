@@ -38,9 +38,6 @@ class TestMealsList(unittest.TestCase):
             
         for fixture in DISH_DATA:
             self.client.post("/dishes", json=fixture)
-            
-    def tearDown(self):
-        pass
     
         
     def test_post_meals_valid(self):

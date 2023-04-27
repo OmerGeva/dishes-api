@@ -3,6 +3,7 @@
 
 # import app
 
+# ID_COUNTER = [0]
 # class TestApp(unittest.TestCase):
 #     def setUp(self):
 #         app.app.config['TESTING'] = True
@@ -11,7 +12,7 @@
 #     def test_get_dishes(self):
 #         response = self.app.get('/dishes')
 #         self.assertEqual(response.status_code, 200)
-#         print(response.json)
+#         print(ID_COUNTER)
 
 # if __name__ == '__main__':
 #     unittest.main()

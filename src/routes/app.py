@@ -154,14 +154,17 @@ class MealByID(Resource):
         meal = col.meals.get(ID)
         if not meal:
             return ResponseSerializer(-5, 400).serialize()
+
+        # Update meal fields
+        updated_meal = col.update_meal(req_json, meal)
         
         # Check if params are specified correctly
-        validator = MealValidator(req_json, 'post').call()
+        validator = MealValidator(updated_meal, 'post').call()
         if not validator:
             return ResponseSerializer(-1, 422).serialize()
         
         # Calculate the total nutrition of the dishes, returns error if a dish doesn't exist
-        with_nutrition = CalculateMealNutrition(col, req_json).call()
+        with_nutrition = CalculateMealNutrition(col, updated_meal).call()
         if len(with_nutrition) == 0:
             return ResponseSerializer(-6, 422).serialize()
         

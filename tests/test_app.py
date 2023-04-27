@@ -12,7 +12,7 @@
 #     def test_get_dishes(self):
 #         response = self.app.get('/dishes')
 #         self.assertEqual(response.status_code, 200)
-#         print(ID_COUNTER)
+#         
 
 # if __name__ == '__main__':
 #     unittest.main()

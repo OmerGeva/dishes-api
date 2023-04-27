@@ -75,11 +75,7 @@ class TestMealByID(unittest.TestCase):
         response_delete_error = self.client.delete("/meals/" + str(id))
         self.assertEqual(response_delete_error.status_code, 404)
         self.assertEqual(response_delete_error.json, -5)
-
-
-
-        
-            
+           
             
 if __name__ == '__main__':
     unittest.main()

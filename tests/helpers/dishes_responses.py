@@ -1,5 +1,5 @@
 get_dishes_response = {
-    '100': {'id': 100, 'name': 'lasagna', 'cal': 1, 'sodium': 1, 'sugar': 1},
-    '200': {'id': 200, 'name': 'pizza', 'cal': 1, 'sodium': 1, 'sugar': 1},
-    '300': {'id': 3300, 'name': 'hamburger', 'cal': 1, 'sodium': 1, 'sugar': 1}
+    '1': {'id': 1, 'name': 'green salad', 'cal': 23.4, 'sodium': 37, 'sugar': 2.2},
+    '2': {'id': 2, 'name': 'focaccia', 'cal': 251.9, 'sodium': 570, 'sugar': 1.8},
+    '3': {'id': 3, 'name': 'chicken soup', 'cal': 33.2, 'sodium': 230, 'sugar': 1.0},
 }

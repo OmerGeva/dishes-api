@@ -1,0 +1,20 @@
+[
+    {
+        "name": "wierd meal",
+        "appetizer": 1,
+        "main": 2,
+        "dessert": 3
+    },
+    {
+        "name": "even weirder meal",
+        "appetizer": 2,
+        "main": 3,
+        "dessert": 1
+    },
+    {
+        "name": "nice meal",
+        "appetizer": 3,
+        "main": 1,
+        "dessert": 2
+    }
+]

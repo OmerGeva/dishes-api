@@ -47,13 +47,4 @@ class DataCollection:
         elif type == 'dish':
             self.dish_id_counter += 1
             return self.dish_id_counter
-        
-    def update_meal(self, params, meal):
-        new_meal = meal
-        params_list = ["name", "appetizer", "main", "dessert"]
-        
-        for param in params_list:
-            if param in params:
-                new_meal[param] = params[param]
-            
-        return new_meal
+

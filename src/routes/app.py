@@ -156,7 +156,8 @@ class MealByID(Resource):
             return ResponseSerializer(-5, 400).serialize()
 
         # Update meal fields
-        updated_meal = col.update_meal(req_json, meal)
+        updated_meal = meal
+        updated_meal.update(req_json)
         
         # Check if params are specified correctly
         validator = MealValidator(updated_meal, 'post').call()

@@ -130,7 +130,7 @@ class MealByID(Resource):
         meal = col.meals.get(ID)
             
         if not meal:
-            return ResponseSerializer(-5, 400).serialize()
+            return ResponseSerializer(-5, 404).serialize()
 
         return ResponseSerializer(meal, 200).serialize()
     
@@ -138,7 +138,7 @@ class MealByID(Resource):
         meal = col.meals.get(ID)
             
         if not meal:
-            return ResponseSerializer(-5, 400).serialize()
+            return ResponseSerializer(-5, 404).serialize()
         
         col.delete_meal(ID)
         return ResponseSerializer(ID, 200).serialize()
@@ -150,33 +150,30 @@ class MealByID(Resource):
         
         req_json = request.get_json()
         
+        # Check if a meal with provided ID exists in our DB
+        meal = col.meals.get(ID)
+        if not meal:
+            return ResponseSerializer(-5, 400).serialize()
+
+        # Update meal fields
+        updated_meal = meal
+        updated_meal.update(req_json)
+        
         # Check if params are specified correctly
-        validator = MealValidator(req_json, 'post').call()
+        validator = MealValidator(updated_meal, 'post').call()
         if not validator:
             return ResponseSerializer(-1, 422).serialize()
         
-        # Check whether we need to modify or create a new record
-        meal = col.meals.get(ID)
-        modify_existing_record = False if not meal else True
+        # Calculate the total nutrition of the dishes, returns error if a dish doesn't exist
+        with_nutrition = CalculateMealNutrition(col, updated_meal).call()
+        if len(with_nutrition) == 0:
+            return ResponseSerializer(-6, 422).serialize()
         
-        # If we are creating a new record, we first check if a meal with that name already exists
-        if not modify_existing_record and col.find_data_item(col.meals, 'name', req_json['name']) != None:
-            return ResponseSerializer(-2, 422).serialize()
+        with_nutrition['id'] = ID
+        col.meals[ID] = with_nutrition
         
-        # Add meal into database
-        if modify_existing_record:
-            req_json['id'] = ID
-            res_code = 200
-        else:
-            req_json['id'] = col.get_id('meal')
-            res_code = 201
         
-        # TODO: this logic is not correct if meal exists, we need to update the meal. if it doesn't exist, we need to create a new one
-        # change needed in the if statement above
-        
-        ID = col.add_meal(req_json)
-        
-        return ResponseSerializer(ID, res_code).serialize()
+        return ResponseSerializer(ID, 200).serialize()
         
     
 class MealByName(Resource):
@@ -187,7 +184,7 @@ class MealByName(Resource):
         
         # Return an error if meal doesn't exit
         if meal == -1:
-            return ResponseSerializer(-5, 400).serialize()
+            return ResponseSerializer(-5, 404).serialize()
         
         return ResponseSerializer(meal, 200).serialize()
     
@@ -195,8 +192,8 @@ class MealByName(Resource):
         meal = col.find_data_item(col.get_meals(), 'name', name)
         
         # Return an error if meal doesn't exit
-        if not meal:
-            return ResponseSerializer(-5, 400).serialize()
+        if meal == -1:
+            return ResponseSerializer(-5, 404).serialize()
         
         meal_id = meal['id']
         col.delete_meal(meal_id)

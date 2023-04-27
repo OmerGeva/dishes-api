@@ -4,9 +4,7 @@ class DataCollection:
         self.dish_id_counter = 0
         
         self.meals = {}
-        self.dishes = {100: { 'id': 100, 'name': 'lasagna', 'cal': 1, 'sodium': 1, 'sugar': 1},
-                       200: { 'id': 200, 'name': 'pizza', 'cal': 1, 'sodium': 1, 'sugar': 1},
-                       300: { 'id': 3300, 'name': 'hamburger', 'cal': 1, 'sodium': 1, 'sugar': 1}}
+        self.dishes = {}
     
     def get_dishes(self):
         return self.dishes
@@ -49,3 +47,4 @@ class DataCollection:
         elif type == 'dish':
             self.dish_id_counter += 1
             return self.dish_id_counter
+

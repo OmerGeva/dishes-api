@@ -34,4 +34,4 @@ class GetNutritionalValue():
             dishSodium += item['sodium_mg']
             dishSugar += item['sugar_g']
 
-        return { 'name': self.query, 'cal': dishCal, 'sodium': dishSodium, 'sugar': dishSugar }
+        return { 'name': self.query, 'cal': dishCal, 'size': dishSize,'sodium': dishSodium, 'sugar': dishSugar }

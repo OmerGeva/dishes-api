@@ -27,8 +27,8 @@ class TestMealsList(unittest.TestCase):
 
         app.app.config['TESTING'] = True
         self.client = app.app.test_client()
-        
-        INVALID_MEAL_DATA = test_helpers.invalid_fixtures
+         
+        INVALID_MEAL_DATA = test_helpers.invalid_meal_fixtures
         
         with open('tests/helpers/dish_fixtures.json') as json_data:
             DISH_DATA = json.load(json_data)

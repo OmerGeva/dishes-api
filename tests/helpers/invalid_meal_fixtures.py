@@ -1,4 +1,4 @@
-invalid_fixtures = {
+invalid_meal_fixtures = {
     "invalid_content_type" :
         "23456",
     "invalid_params_name":

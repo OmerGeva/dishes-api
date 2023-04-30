@@ -2,13 +2,17 @@ import unittest
 
 from flask import Flask
 from flask_restful import Api
+from unittest.mock import patch
+
 from src.data import DataCollection
-from src.exceptions.ninja_exceptions import NinjaEmptyException
+from src.exceptions.ninja_exceptions import NinjaEmptyException, NinjaTimeoutException
 from helpers import test_helpers
 import json
 
 
 import app
+from src.services.get_nutritional_value import GetNutritionalValue
+from tests.test_app import make_dish
 
 DISH_DATA = []
 INVALID_DISH_DATA = []
@@ -28,21 +32,26 @@ class TestDishesList(unittest.TestCase):
         
         with open('tests/helpers/dish_fixtures.json') as json_data:
             DISH_DATA = json.load(json_data)
-
+            
+    def tearDown(self) -> None:
+        self.client.get('/reset_db')
+    
     def test_post_dishes_valid(self):
         global ID_COUNTER
 
-        #Test posting all dishes
         for dish in DISH_DATA:
-            # Send POST request
-            post_response = self.client.post("/dishes", json=dish)
-            ID_COUNTER += 1
+            with patch('src.services.GetNutritionalValue.call') as mock_call:
+                mock_call.return_value = {
+                    'name': dish['name'],
+                    'cal': 100,
+                    'sodium': 200,
+                    'sugar': 300
+                }
+                post_response = self.client.post("/dishes", json=dish)
+                ID_COUNTER += 1
 
-            # Validate status_code
-            self.assertEqual(post_response.status_code, 201)
-
-            # Validate correct ID
-            self.assertEqual(post_response.json, ID_COUNTER)
+                self.assertEqual(post_response.status_code, 201)
+                self.assertEqual(post_response.json, ID_COUNTER)
 
     def test_post_dishes_invalid_params(self):
         global INVALID_DISH_DATA
@@ -66,16 +75,24 @@ class TestDishesList(unittest.TestCase):
         dish = DISH_DATA[0]
 
         #post the dish to the database
-        self.client.post("/dishes", json=dish)
+        make_dish(self.client, dish)
 
         #post the identical dish again
-        identical_post_response = self.client.post("/dishes", json=dish)
-        self.assertEqual(identical_post_response.status_code, 422)
-        self.assertEqual(identical_post_response.json, -2)
+        res = self.client.post("/dishes", json=dish)
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.json, -2)
 
     def test_post_dishes_apininja_invalid_dish(self):
-        global INVALID_DISH_DATA
+        with patch('src.services.GetNutritionalValue.call') as mock_call:
+            mock_call.side_effect = NinjaEmptyException('Ninja API returned empty response')
+            res = self.client.post("/dishes", json={ 'name': 'newdish'})
+            self.assertEqual(res.json, -3)
 
-        # Test rejection of invalid dish request to ninja-api
-        with self.assertRaises(NinjaEmptyException):
-            self.client.post("/dishes", json=INVALID_DISH_DATA['invalid_dish'])
+
+
+    def test_post_ninja_timeout(self):
+        with patch('src.services.GetNutritionalValue.call') as mock_call:
+            mock_call.side_effect = NinjaTimeoutException('Ninja API timed out')
+            res = self.client.post("/dishes", json={ 'name': 'newdish'})
+            self.assertEqual(res.json, -4)
+

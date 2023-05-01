@@ -11,6 +11,7 @@ from src.validators.dish_validator import DishValidator
 from src.services.calculate_meal_nutrition import CalculateMealNutrition
 from src.services.get_nutritional_value import GetNutritionalValue
 from src.exceptions.ninja_exceptions import NinjaTimeoutException, NinjaEmptyException
+from requests.exceptions import ConnectionError
 
 col = DataCollection() 
 
@@ -38,18 +39,18 @@ class Dishes(Resource):
         # Check if a dish with that name already exists
         if col.find_data_item(col.dishes, 'name', req_json['name']) != -1:
             return ResponseSerializer(-2, 422).serialize()
-
-        dish_nutrition = GetNutritionalValue(req_json['name']).call()
-
+        
         try:
+            dish_nutrition = GetNutritionalValue(req_json['name']).call()
             dish = col.add_dish(dish_nutrition)
         except NinjaTimeoutException:
+            return ResponseSerializer(-4, 504).serialize()
+        except ConnectionError:
             return ResponseSerializer(-4, 504).serialize()
         except NinjaEmptyException:
             return ResponseSerializer(-3, 422).serialize()
         
         return ResponseSerializer(dish, 201).serialize()
-
 
 class DishByID(Resource):
     global col
@@ -69,7 +70,6 @@ class DishByID(Resource):
         col.delete_dish(ID)
 
         return ResponseSerializer(dish['id'], 200).serialize()
-
 
 class DishByName(Resource):
     global col
@@ -122,7 +122,6 @@ class MealsList(Resource):
         id = col.add_meal(with_nutrition)
         return ResponseSerializer(id, 201).serialize()
 
-        
 class MealByID(Resource):
     global col
     
@@ -173,8 +172,7 @@ class MealByID(Resource):
         col.meals[ID] = with_nutrition
         
         
-        return ResponseSerializer(ID, 200).serialize()
-        
+        return ResponseSerializer(ID, 200).serialize()        
     
 class MealByName(Resource):
     global col
@@ -198,3 +196,10 @@ class MealByName(Resource):
         meal_id = meal['id']
         col.delete_meal(meal_id)
         return ResponseSerializer(meal_id, 200).serialize()
+
+class ResetDB(Resource):
+    global col
+
+    def get(self):
+        col.reset_db()
+        return ResponseSerializer(1, 200).serialize()

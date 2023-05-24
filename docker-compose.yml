@@ -1,0 +1,13 @@
+version: '3'  
+
+services:
+  word-service:
+    build: ./dishes-api  
+    volumes:
+      - type: bind
+        source: ./dishes-api 
+        target: /dishes-api 
+    environment:
+      FLASK_DEBUG: "true"
+    ports:
+      - "8000:8000"  

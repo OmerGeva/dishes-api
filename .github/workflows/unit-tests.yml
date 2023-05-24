@@ -6,6 +6,8 @@ jobs:
     name: Unit Tests
     runs-on: ubuntu-latest
     steps:
+      - name: Change working directory
+        run: cd dishes-api
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup Python

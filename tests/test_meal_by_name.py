@@ -7,6 +7,7 @@ import json
 
 
 import app
+from tests.test_app import make_dish
 
 DISH_DATA = []
 VALID_MEAL_DATA = []
@@ -27,7 +28,7 @@ class TestMealByName(unittest.TestCase):
         app.app.config['TESTING'] = True
         self.client = app.app.test_client()
         
-        INVALID_MEAL_DATA = test_helpers.invalid_fixtures
+        INVALID_MEAL_DATA = test_helpers.invalid_meal_fixtures
         
         with open('tests/helpers/dish_fixtures.json') as json_data:
             DISH_DATA = json.load(json_data)
@@ -36,8 +37,10 @@ class TestMealByName(unittest.TestCase):
             VALID_MEAL_DATA = json.load(json_data)
             
         for fixture in DISH_DATA:
-            self.client.post("/dishes", json=fixture)
+            make_dish(self.client, fixture)
             
+    def tearDown(self) -> None:
+        self.client.get('/reset_db')
         
     def test_delete_meal(self):
         # Create a new meal

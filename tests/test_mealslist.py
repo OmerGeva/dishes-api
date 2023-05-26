@@ -64,7 +64,7 @@ class TestMealsList(unittest.TestCase):
         response_post = self.client.post("/meals", json=meal)
         ID_COUNTER[0] += 1
         id = response_post.json
-        meal["id"] = id
+        meal["ID"] = id
         
         # Test nutritional values calculations
         dish_ids = [meal["main"], meal["appetizer"], meal["dessert"]]

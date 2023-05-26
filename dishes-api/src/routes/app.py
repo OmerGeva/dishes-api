@@ -39,6 +39,7 @@ class Dishes(Resource):
         
         # Check if a dish with that name already exists
         if col.find_data_item(col.dishes, 'name', req_json['name']) != -1:
+
             return ResponseSerializer(RECORD_ALREADY_EXISTS, 422).serialize()
         
         try:
@@ -70,7 +71,7 @@ class DishByID(Resource):
 
         col.delete_dish(ID)
 
-        return ResponseSerializer(dish['id'], 200).serialize()
+        return ResponseSerializer(dish['ID'], 200).serialize()
 
 class DishByName(Resource):
     global col
@@ -89,9 +90,9 @@ class DishByName(Resource):
         if dish == -1:
             return ResponseSerializer(BAD_RECORD_ID, 404).serialize()
 
-        col.delete_dish(dish['id'])
+        col.delete_dish(dish['ID'])
 
-        return ResponseSerializer(dish['id'], 200).serialize()
+        return ResponseSerializer(dish['ID'], 200).serialize()
 
 class MealsList(Resource):
     global col
@@ -156,7 +157,7 @@ class MealByID(Resource):
             return ResponseSerializer(BAD_RECORD_ID, 400).serialize()
 
         # Update meal fields
-        updated_meal = meal
+        updated_meal = meal.copy()
         updated_meal.update(req_json)
         
         # Check if params are specified correctly
@@ -164,12 +165,16 @@ class MealByID(Resource):
         if not validator:
             return ResponseSerializer(INVALID_PARAM, 422).serialize()
         
+         # Check if a meal with that name already exists
+        if col.find_data_item(col.meals, 'name', updated_meal['name']) != -1:
+            return ResponseSerializer(-2, 422).serialize()
+        
         # Calculate the total nutrition of the dishes, returns error if a dish doesn't exist
         with_nutrition = CalculateMealNutrition(col, updated_meal).call()
         if len(with_nutrition) == 0:
             return ResponseSerializer(BAD_DISH_ID, 422).serialize()
         
-        with_nutrition['id'] = ID
+        with_nutrition['ID'] = ID
         col.meals[ID] = with_nutrition
         
         
@@ -194,7 +199,7 @@ class MealByName(Resource):
         if meal == -1:
             return ResponseSerializer(BAD_RECORD_ID, 404).serialize()
         
-        meal_id = meal['id']
+        meal_id = meal['ID']
         col.delete_meal(meal_id)
         return ResponseSerializer(meal_id, 200).serialize()
 

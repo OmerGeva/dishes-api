@@ -8,6 +8,7 @@ import json
 
 
 import app
+from tests.test_app import make_dish
 
 DISH_DATA = []
 
@@ -21,17 +22,21 @@ class TestDishById(unittest.TestCase):
         
         with open('tests/helpers/dish_fixtures.json') as json_data:
             DISH_DATA = json.load(json_data)
-        
+            
+    def tearDown(self) -> None:
+        self.client.get('/reset_db')
+    
     def test_delete_by_id(self):
         global DISH_DATA
-
+        
         # Test all dishes in dish data 
         for dish in DISH_DATA:
             # Post a new dish to delete:
-            post_response = self.client.post("/dishes", json = dish)
-
+            
+            post_response = make_dish(self.client, dish)
             # Delete the dish
             id_json = post_response.json
+
             delete_response = self.client.delete("/dishes/" + str(id_json))
             self.assertEqual(delete_response.status_code, 200)
             self.assertEqual(delete_response.json, id_json)

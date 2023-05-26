@@ -8,11 +8,12 @@ import json
 
 
 import app
+from tests.test_app import make_dish
 
 DISH_DATA = []
 VALID_MEAL_DATA = []
 INVALID_MEAL_DATA = []
-ID_COUNTER = [0]
+ID_COUNTER = [1]
 
 
 class TestMealsList(unittest.TestCase):
@@ -37,8 +38,10 @@ class TestMealsList(unittest.TestCase):
             VALID_MEAL_DATA = json.load(json_data)
             
         for fixture in DISH_DATA:
-            self.client.post("/dishes", json=fixture)
-    
+            make_dish(self.client, fixture)
+            
+    def tearDown(self) -> None:
+        self.client.get('/reset_db')    
         
     def test_post_meals_valid(self):
         # Get test fixture
@@ -46,7 +49,6 @@ class TestMealsList(unittest.TestCase):
         
         # Send POST request
         response_post = self.client.post("/meals", json=meal)
-        ID_COUNTER[0] += 1
         
         # Response status code should be 201
         self.assertEqual(response_post.status_code, 201)
@@ -62,7 +64,6 @@ class TestMealsList(unittest.TestCase):
         
         # Send POST request, reponse returns ID of newly created dish
         response_post = self.client.post("/meals", json=meal)
-        ID_COUNTER[0] += 1
         id = response_post.json
         meal["ID"] = id
         
@@ -105,8 +106,7 @@ class TestMealsList(unittest.TestCase):
     def test_post_meals_invalid_name(self):
         # Make a valid post request
         meal = VALID_MEAL_DATA[2]
-        response_post = self.client.post("/meals", json=meal)
-        ID_COUNTER[0] += 1
+        self.client.post("/meals", json=meal)
         
         # Create new POST request with the same name
         new_meal = VALID_MEAL_DATA[0]

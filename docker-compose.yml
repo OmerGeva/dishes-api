@@ -10,4 +10,14 @@ services:
     environment:
       FLASK_DEBUG: "true"
     ports:
-      - "8000:8000"  
+      - "8000:8000"
+  diets-service:
+    build: ./diets-api
+    volumes:
+      - type: bind
+        source: ./diets-api
+        target: /diets-api
+    environment: 
+      FLASK_DEBUG: "true"
+    ports:
+      - "8001:8000"

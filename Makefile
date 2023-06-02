@@ -1,9 +1,8 @@
 # Set environment variables
 export FLASK_APP=app.py
 
-run:
+run:	
 	flask --app dishes-api/app run
-
 dev:
 	flask --app dishes-api/app run -h localhost -p 8000 --debug
 

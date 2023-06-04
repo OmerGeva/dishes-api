@@ -14,7 +14,10 @@ from src.services.get_nutritional_value import GetNutritionalValue
 from src.exceptions.ninja_exceptions import NinjaTimeoutException, NinjaEmptyException
 from requests.exceptions import ConnectionError
 from src.constants import *
-from src.database import Database
+
+sys.path.append("..")
+from database.src.database import *
+
 
 col = Database()
 

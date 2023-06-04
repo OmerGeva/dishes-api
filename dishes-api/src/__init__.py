@@ -1,6 +1,9 @@
+import sys
+sys.path.append("..")
+
 from flask import Flask
 from flask_restful import Api
-from src.database import mongo
+from database.src.database import mongo
 
 app = Flask(__name__) 
 api = Api(app)

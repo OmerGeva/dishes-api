@@ -1,6 +1,6 @@
 FROM python:alpine3.17
 
-WORKDIR ./app
+WORKDIR ./diets-api
 
 COPY . .
 

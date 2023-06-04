@@ -15,6 +15,20 @@ class Database:
     def get_meals(self):
         return list(self.meals.find())
     
+    def get_diets(self):
+        return list(self.diets.find())
+
+    def add_diet(self, diet):
+        document = self.diets.find_one(sort=[("_id", -1)])
+
+        if document is not None:
+            keynum = document["_id"] + 1
+        else:
+            keynum = 1
+            
+        diet["_id"] = keynum
+        result = self.diets.insert_one(diet)
+    
     def delete_dish(self, id):
         self.dishes.delete_one({'_id': id})
     

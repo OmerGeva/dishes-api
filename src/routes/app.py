@@ -1,4 +1,5 @@
 import sys
+from bson import ObjectId
 sys.path.append("..")
 
 from flask import request
@@ -13,8 +14,9 @@ from src.services.get_nutritional_value import GetNutritionalValue
 from src.exceptions.ninja_exceptions import NinjaTimeoutException, NinjaEmptyException
 from requests.exceptions import ConnectionError
 from src.constants import *
+from src.database import Database
 
-col = DataCollection() 
+col = Database()
 
 class Dishes(Resource):
     global col
@@ -57,27 +59,28 @@ class Dishes(Resource):
 class DishByID(Resource):
     global col
     def get(self, ID):
-        dish = col.dishes.get(ID)
+        dish = col.find_data_item(col.dishes, '_id', ID)
 
-        if not dish:
+        if dish == -1:
             return ResponseSerializer(BAD_RECORD_ID, 404).serialize()
 
         return ResponseSerializer(dish, 200).serialize()
+    
     def delete(self, ID):
-        dish = col.dishes.get(ID)
+        dish = col.find_data_item(col.dishes, '_id', ID)
 
-        if not dish:
+        if dish == -1:
             return ResponseSerializer(BAD_RECORD_ID, 404).serialize()
 
         col.delete_dish(ID)
 
-        return ResponseSerializer(dish['ID'], 200).serialize()
+        return ResponseSerializer(ID, 200).serialize()
 
 class DishByName(Resource):
     global col
 
     def get(self, name):
-        dish = col.find_data_item(col.get_dishes(), 'name', name)
+        dish = col.find_data_item(col.dishes, 'name', name)
 
         if dish == -1:
             return ResponseSerializer(BAD_RECORD_ID, 404).serialize()
@@ -85,14 +88,14 @@ class DishByName(Resource):
         return ResponseSerializer(dish, 200).serialize()
 
     def delete(self, name):
-        dish = col.find_data_item(col.get_dishes(), 'name', name)
+        dish = col.find_data_item(col.dishes, 'name', name)
 
         if dish == -1:
             return ResponseSerializer(BAD_RECORD_ID, 404).serialize()
 
-        col.delete_dish(dish['ID'])
+        col.delete_dish(dish['_id'])
 
-        return ResponseSerializer(dish['ID'], 200).serialize()
+        return ResponseSerializer(dish['_id'], 200).serialize()
 
 class MealsList(Resource):
     global col
@@ -128,20 +131,21 @@ class MealByID(Resource):
     global col
     
     def get(self, ID):
-        meal = col.meals.get(ID)
+        meal = col.find_data_item(col.meals, '_id', )
             
-        if not meal:
+        if meal == -1:
             return ResponseSerializer(BAD_RECORD_ID, 404).serialize()
 
         return ResponseSerializer(meal, 200).serialize()
     
     def delete(self, ID):
-        meal = col.meals.get(ID)
-            
-        if not meal:
+        meal = col.find_data_item(col.meals, "_id", ID)
+        
+        if meal == -1:
             return ResponseSerializer(BAD_RECORD_ID, 404).serialize()
         
         col.delete_meal(ID)
+        
         return ResponseSerializer(ID, 200).serialize()
     
     def put(self, ID):
@@ -152,8 +156,8 @@ class MealByID(Resource):
         req_json = request.get_json()
         
         # Check if a meal with provided ID exists in our DB
-        meal = col.meals.get(ID)
-        if not meal:
+        meal = col.find_data_item(col.meals, "_id", ID)
+        if meal == -1:
             return ResponseSerializer(BAD_RECORD_ID, 400).serialize()
 
         # Update meal fields
@@ -174,17 +178,15 @@ class MealByID(Resource):
         if len(with_nutrition) == 0:
             return ResponseSerializer(BAD_DISH_ID, 422).serialize()
         
-        with_nutrition['ID'] = ID
-        col.meals[ID] = with_nutrition
-        
-        
+        ID = col.add_meal(with_nutrition)
+
         return ResponseSerializer(ID, 200).serialize()        
     
 class MealByName(Resource):
     global col
     
     def get(self, name):
-        meal = col.find_data_item(col.get_meals(), 'name', name)
+        meal = col.find_data_item(col.meals, 'name', name)
         
         # Return an error if meal doesn't exit
         if meal == -1:
@@ -193,19 +195,19 @@ class MealByName(Resource):
         return ResponseSerializer(meal, 200).serialize()
     
     def delete(self, name):
-        meal = col.find_data_item(col.get_meals(), 'name', name)
+        meal = col.find_data_item(col.meals, 'name', name)
         
         # Return an error if meal doesn't exit
         if meal == -1:
             return ResponseSerializer(BAD_RECORD_ID, 404).serialize()
         
-        meal_id = meal['ID']
+        meal_id = meal['_id']
         col.delete_meal(meal_id)
         return ResponseSerializer(meal_id, 200).serialize()
 
-class ResetDB(Resource):
-    global col
+# class ResetDB(Resource):
+#     global col
 
-    def get(self):
-        col.reset_db()
-        return ResponseSerializer(1, 200).serialize()
+#     def get(self):
+#         col.reset_db()
+#         return ResponseSerializer(1, 200).serialize()

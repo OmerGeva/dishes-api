@@ -1,19 +1,22 @@
+from bson import ObjectId
+
+
 class CalculateMealNutrition():
     def __init__(self,  col, attrs):
         self.col = col
         self.attrs = attrs
         
     def call(self):
-        dish_ids = [self.attrs['appetizer'], self.attrs['main'], self.attrs['dessert']]
+        dishIDs = [self.attrs['appetizer'], self.attrs['main'], self.attrs['dessert']]
         self.attrs['cal'] = self.attrs['sodium'] = self.attrs['sugar'] = 0
         
-        for id in dish_ids:
+        for id in dishIDs:
             if not id:
                 continue
 
-            dish = self.col.dishes.get(id)
+            dish = self.col.find_data_item(self.col.dishes, 'ID', id)
 
-            if not dish:
+            if dish == -1:
                 return []
             
             self.attrs['cal'] += dish['cal']

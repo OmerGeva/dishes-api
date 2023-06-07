@@ -12,10 +12,21 @@ class BaseValidator:
             missing_fields = ", ".join(diff)
             self.errors.append(f"The following params are missing: {missing_fields}")
         
+
         incorrect_types = []
         for key in self.params:
-            if type(self.params[key]) != required.get(key):
-                incorrect_types.append(key)
+            required_type = required.get(key)
+            param_value = self.params[key]
+            
+            if isinstance(required_type, list):
+                # Handle case where required_type is a list of types
+                if not any(isinstance(param_value, t) for t in required_type):
+                    incorrect_types.append(key)
+            else:
+                # Handle case where required_type is a single type
+                if not isinstance(param_value, required_type):
+                    incorrect_types.append(key)
+        
         if len(incorrect_types) > 0:
             missing_fields = ", ".join(incorrect_types)
             self.errors.append(f"The following params are missing: {missing_fields}")

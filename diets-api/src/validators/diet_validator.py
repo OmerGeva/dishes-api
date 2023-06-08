@@ -4,8 +4,8 @@ class DietValidator(BaseValidator):
     REQUIRED_PARAMS = {
         'post': {
             "name" : str,
-            "cal" : int,
-            "sodium" : int,
-            "sugar" : int,
+            "cal" : [int, float],
+            "sodium" : [int, float],
+            "sugar" : [int, float],
         }
     }

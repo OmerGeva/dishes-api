@@ -9,7 +9,7 @@ class Database:
     def get_diets(self):
         # self.diets.drop()
 
-        return list(self.diets.find({}, {"_id": False}))
+        return list(self.diets.find({}, {"_id": False, "ID": False}))
 
     def add_diet(self, diet):
         document = self.diets.find_one(sort=[("_id", -1)])

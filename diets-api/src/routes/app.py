@@ -10,7 +10,7 @@ from src.validators.diet_validator import DietValidator
 from src.constants import *
 
 sys.path.append("..")
-from database.src.database import *
+from database import Database
 
 col = Database()
 

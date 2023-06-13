@@ -16,8 +16,7 @@ from requests.exceptions import ConnectionError
 from src.constants import *
 
 sys.path.append("..")
-from database.src.database import *
-
+from database import Database
 
 col = Database()
 

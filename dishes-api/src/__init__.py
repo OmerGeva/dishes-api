@@ -3,13 +3,9 @@ sys.path.append("..")
 
 from flask import Flask
 from flask_restful import Api
-from database.src.database import mongo
 
 app = Flask(__name__) 
 api = Api(app)
-app.config["MONGO_URI"] = "mongodb://localhost:27017/myDatabase"
-
-mongo.init_app(app)
 
 from src.routes.app import DishByName, Dishes, DishByID, MealsList, MealByID, MealByName
 

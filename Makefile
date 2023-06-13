@@ -12,4 +12,7 @@ test:
 clean:
 	rm -rf dishes-api/__pycache__
 
+remove_images:
+	docker rmi $(docker images -a -q)
+
 .PHONY: run

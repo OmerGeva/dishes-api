@@ -1,33 +1,17 @@
-from flask_pymongo import PyMongo
-from bson.objectid import ObjectId
+import pymongo
 
-mongo = PyMongo()
+client = pymongo.MongoClient("mongodb://mongo:27017/")
 
 class Database:
     def __init__(self):
-        self.dishes = mongo.db.dishes
-        self.meals = mongo.db.meals
-        self.diets = mongo.db.diets
+        self.dishes = client["db"]["dishes"]
+        self.meals = client["db"]["meals"]
     
     def get_dishes(self):
         return list(self.dishes.find())
     
     def get_meals(self):
         return list(self.meals.find())
-    
-    def get_diets(self):
-        return list(self.diets.find())
-
-    def add_diet(self, diet):
-        document = self.diets.find_one(sort=[("_id", -1)])
-
-        if document is not None:
-            keynum = document["_id"] + 1
-        else:
-            keynum = 1
-            
-        diet["_id"] = keynum
-        result = self.diets.insert_one(diet)
     
     def delete_dish(self, id):
         self.dishes.delete_one({'_id': id})

@@ -25,13 +25,10 @@ services:
       - "5002:8000"
   mongo:
       image: mongo
-  #    environment:
-  #      MONGO_INITDB_ROOT_USERNAME: root
-  #      MONGO_INITDB_ROOT_PASSWORD: rootpassword
       ports:
         - 27017:27017
-  #    volumes:
-  #      - mongo_data:/data/db
+      volumes:
+        - mongo_data:/data/db
       
   reverse:
     build: ./reverse
@@ -40,3 +37,6 @@ services:
     depends_on:
       - dishes-service
       - diets-service
+
+volumes:
+  mongo_data:

@@ -1,6 +1,7 @@
 import pymongo
+from bson.objectid import ObjectId
 
-client = pymongo.MongoClient("mongodb://mongo:27017/")
+client = pymongo.MongoClient("mongodb://mongo:27017/myDatabase")
 
 class Database:
     def __init__(self):
@@ -8,10 +9,12 @@ class Database:
         self.meals = client["db"]["meals"]
     
     def get_dishes(self):
-        return list(self.dishes.find())
+        # self.dishes.drop()
+        # self.meals.drop()
+        return list(self.dishes.find({}, {"_id": False}))
     
     def get_meals(self):
-        return list(self.meals.find())
+        return list(self.meals.find({}, {"_id": False}))
     
     def delete_dish(self, id):
         self.dishes.delete_one({'_id': id})
@@ -24,9 +27,9 @@ class Database:
         else:
             keynum = 1
             
+        dish["ID"] = keynum
         dish["_id"] = keynum
         result = self.dishes.insert_one(dish)
-        
         return result.inserted_id
 
     def delete_meal(self, id):

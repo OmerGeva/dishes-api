@@ -12,6 +12,9 @@ services:
       FLASK_DEBUG: "true"
     ports:
       - "5001:8000"
+    depends_on:
+    - diets-service
+
   diets-service:
     build: ./diets-api
     restart: always
@@ -23,20 +26,22 @@ services:
       FLASK_DEBUG: "true"
     ports:
       - "5002:8000"
+    depends_on:
+      - mongo
+
   mongo:
-      image: mongo
-      ports:
-        - 27017:27017
-      volumes:
-        - mongo_data:/data/db
-      
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_data:/data/db
+
   reverse:
     build: ./reverse
     ports:
       - "80:80"
     depends_on:
       - dishes-service
-      - diets-service
 
 volumes:
   mongo_data:

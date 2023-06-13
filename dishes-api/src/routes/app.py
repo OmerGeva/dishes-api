@@ -1,8 +1,9 @@
 import sys
 sys.path.append("..")
 
+from requests import Session
 from flask import request
-from flask_restful import Resource
+from flask_restful import Resource, reqparse
 
 from src.data import DataCollection
 from src.serializer import ResponseSerializer
@@ -98,7 +99,45 @@ class MealsList(Resource):
     global col
     
     def get(self):
-        return ResponseSerializer(col.get_meals(), 200).serialize()
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('diet', type=str)
+
+        args = parser.parse_args()
+
+        #Case we weren't given a diet
+        if not args['diet']:
+            return ResponseSerializer(col.get_meals(), 200).serialize()
+
+        diet = args['diet']
+        api_url = 'http://diets-service:8000/diets/' + diet
+        session = Session()
+
+        response = session.get(api_url)
+        #Case diet wasn't found
+        if response.status_code == 404:
+            return ResponseSerializer(col.get_meals(), 200).serialize()
+        
+        json = response.json()
+        caloryCap = json['cal']
+        sodiumCap = json['sodium']
+        sugarCap = json['sugar']
+
+        meals = col.get_meals().copy()
+
+        idsToDelete = []
+        for id in meals:
+            if caloryCap < meals[id]['cal']:
+                idsToDelete.append(id)
+            elif sodiumCap < meals[id]['sodium']:
+                idsToDelete.append(id)
+            elif sugarCap < meals[id]['sugar']:
+                idsToDelete.append(id)
+
+        for id in idsToDelete:
+            del meals[id]
+
+        return ResponseSerializer(meals, 200).serialize()
     
     def post(self):
         # Only accept app/json content type

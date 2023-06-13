@@ -9,7 +9,10 @@ from src.serializer import ResponseSerializer
 from src.validators.diet_validator import DietValidator
 from src.constants import *
 
-col = DataCollection() 
+sys.path.append("..")
+from database import Database
+
+col = Database()
 
 class Diets(Resource):
     global col
@@ -33,23 +36,23 @@ class Diets(Resource):
         if col.find_data_item(col.diets, 'name', req_json['name']) != -1:
             return ResponseSerializer("Diet with name " + req_json['name'] + " already exists", 422).serialize()
     
-        diet = col.add_diet(req_json)
+        col.add_diet(req_json)
         
         return ResponseSerializer("Diet " + req_json['name'] + " successfully created", 201).serialize()
 
 class DietByName(Resource):
     global col
     def get(self, name):
-        diet = col.find_data_item(col.get_diets(), 'name', name)
+        diet = col.find_data_item(col.diets, 'name', name)
 
         if diet == -1:
             return ResponseSerializer("Diet " + name + " not found", 404).serialize()
 
         return ResponseSerializer(diet, 200).serialize()
 
-class ResetDB(Resource):
-    global col
+# class ResetDB(Resource):
+#     global col
 
-    def get(self):
-        col.reset_db()
-        return ResponseSerializer(1, 200).serialize()
+#     def get(self):
+#         col.reset_db()
+#         return ResponseSerializer(1, 200).serialize()

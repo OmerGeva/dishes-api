@@ -1,7 +1,7 @@
 version: '3'  
 
 services:
-  dishes-service:
+  meals-service:
     build: ./dishes-api  
     restart: always
     volumes:
@@ -10,8 +10,6 @@ services:
         target: /dishes-api 
     environment:
       FLASK_DEBUG: "true"
-    ports:
-      - "5001:8000"
     depends_on:
     - diets-service
 
@@ -41,7 +39,14 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - dishes-service
+      - meals-service
+
+  loadbalancer:
+    build: ./loadbalancer
+    ports:
+      - "5001:5001"
+    depends_on:
+      - meals-service
 
 volumes:
   mongo_data:

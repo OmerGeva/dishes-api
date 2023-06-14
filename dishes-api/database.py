@@ -9,8 +9,6 @@ class Database:
         self.meals = client["db"]["meals"]
     
     def get_dishes(self):
-        # self.dishes.drop()
-        # self.meals.drop()
         return list(self.dishes.find({}, {"_id": False}))
     
     def get_meals(self):
@@ -43,6 +41,7 @@ class Database:
         else:
             keynum = 1
         
+        meal["ID"] = keynum
         meal["_id"] = keynum
         result = self.meals.insert_one(meal)
         

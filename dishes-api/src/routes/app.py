@@ -6,7 +6,6 @@ from flask import request
 from flask_restful import Resource, reqparse
 from requests import Session
 
-from src.data import DataCollection
 from src.serializer import ResponseSerializer
 from src.validators.meal_validator import MealValidator
 from src.validators.dish_validator import DishValidator
@@ -62,7 +61,7 @@ class Dishes(Resource):
 class DishByID(Resource):
     global col
     def get(self, ID):
-        dish = col.find_data_item(col.dishes, '_id', ID)
+        dish = col.find_data_item(col.dishes, 'ID', ID)
 
         if dish == -1:
             return ResponseSerializer(BAD_RECORD_ID, 404).serialize()
@@ -165,7 +164,7 @@ class MealByID(Resource):
     global col
     
     def get(self, ID):
-        meal = col.find_data_item(col.meals, '_id', )
+        meal = col.find_data_item(col.meals, '_id', ID)
             
         if meal == -1:
             return ResponseSerializer(BAD_RECORD_ID, 404).serialize()

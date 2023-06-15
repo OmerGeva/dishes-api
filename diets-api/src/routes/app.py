@@ -4,7 +4,6 @@ sys.path.append("..")
 from flask import request
 from flask_restful import Resource
 
-from src.data import DataCollection
 from src.serializer import ResponseSerializer
 from src.validators.diet_validator import DietValidator
 from src.constants import *

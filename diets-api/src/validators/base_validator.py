@@ -18,7 +18,9 @@ class BaseValidator:
             required_type = required.get(key)
             param_value = self.params[key]
             
-            if isinstance(required_type, list):
+            if required_type is None:
+                incorrect_types.append(key)
+            elif isinstance(required_type, list):
                 # Handle case where required_type is a list of types
                 if not any(isinstance(param_value, t) for t in required_type):
                     incorrect_types.append(key)

@@ -2,7 +2,6 @@ import unittest
 
 from flask import Flask
 from flask_restful import Api
-from src.data import DataCollection
 from helpers import test_helpers
 import json
 

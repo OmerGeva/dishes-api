@@ -29,6 +29,7 @@ services:
 
   mongo:
     image: mongo
+    restart: always
     ports:
       - 27017:27017
     volumes:
@@ -36,6 +37,7 @@ services:
 
   reverse:
     build: ./reverse
+    restart: always
     ports:
       - "80:80"
     depends_on:
@@ -43,6 +45,7 @@ services:
 
   loadbalancer:
     build: ./loadbalancer
+    restart: always
     ports:
       - "5001:5001"
     depends_on:

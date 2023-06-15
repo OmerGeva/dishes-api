@@ -4,7 +4,6 @@ from flask import Flask
 from flask_restful import Api
 from unittest.mock import patch
 
-from src.data import DataCollection
 from src.exceptions.ninja_exceptions import NinjaEmptyException, NinjaTimeoutException
 from helpers import test_helpers
 import json

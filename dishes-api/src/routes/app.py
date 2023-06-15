@@ -202,8 +202,11 @@ class MealByID(Resource):
         if not validator:
             return ResponseSerializer(INVALID_PARAM, 422).serialize()
         
-         # Check if a meal with that name already exists
-        if col.find_data_item(col.meals, 'name', updated_meal['name']) != -1:
+        
+        
+        # Check if a meal with that name already exists
+        meal_with_same_name = col.find_data_item(col.meals, 'name', updated_meal['name'])
+        if meal_with_same_name != -1 and meal_with_same_name['ID'] != ID:
             return ResponseSerializer(-2, 422).serialize()
         
         # Calculate the total nutrition of the dishes, returns error if a dish doesn't exist
@@ -211,7 +214,7 @@ class MealByID(Resource):
         if len(with_nutrition) == 0:
             return ResponseSerializer(BAD_DISH_ID, 422).serialize()
         
-        ID = col.add_meal(with_nutrition)
+        col.update_meal(with_nutrition, ID)
 
         return ResponseSerializer(ID, 200).serialize()        
     

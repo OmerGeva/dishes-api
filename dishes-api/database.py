@@ -17,6 +17,23 @@ class Database:
         return list(self.meals.find({}, {"_id": False}))
     
     def delete_dish(self, id):
+        dish = self.dishes.find_one({'_id': id}, {"_id": False})
+        meal_fields = ["appetizer", "main", "dessert"]
+        nutrient_fields = ["sodium", "cal", "sugar"]
+
+        if dish:
+            for field in meal_fields:
+                affected_meals = self.meals.find({field: id})
+                for meal in affected_meals:
+                    updates = {field: None}
+                    for nutrient in nutrient_fields:
+                        if meal.get(nutrient, 0) > dish.get(nutrient, 0):
+                            updates[nutrient] = meal[nutrient] - dish[nutrient]
+                        else:
+                            updates[nutrient] = 0
+
+                    self.meals.update_one({'_id': meal['_id']}, {'$set': updates})
+                    
         self.dishes.delete_one({'_id': id})
     
     def add_dish(self, dish):
@@ -50,6 +67,10 @@ class Database:
         result = self.meals.insert_one(meal)
         
         return result.inserted_id
+    
+    def update_meal(self, updated_meal, ID):
+        updated_meal.pop('_id', None)
+        self.meals.update_one({'_id': ID}, {'$set': updated_meal})
 
     def find_data_item(self, collection, target_key, target_value):
         item = collection.find_one({target_key: target_value}, {"_id": False})

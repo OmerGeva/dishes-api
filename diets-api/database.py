@@ -7,8 +7,6 @@ class Database:
         self.diets = client["db"]["diets"]
     
     def get_diets(self):
-        # self.diets.drop()
-
         return list(self.diets.find({}, {"_id": False, "ID": False}))
 
     def add_diet(self, diet):

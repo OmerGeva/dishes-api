@@ -103,13 +103,10 @@ class MealsList(Resource):
     global col
     
     def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('diet', type=str)
-
-        args = parser.parse_args()
+        args = request.args
 
         #Case we weren't given a diet
-        if not args['diet']:
+        if not args.get('diet'):
             return ResponseSerializer(col.get_meals(), 200).serialize()
 
         diet = args['diet']
